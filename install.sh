@@ -206,11 +206,40 @@ install_from_packages_list() {
 
 
 
+# INSTALLS PACKAGES FROM LISTS
+clone_repos_from_folder() {
+    console_echo "Installing Packages from Lists!!!"
+    s "0.5"
+
+    if [ ! -d "$REPOSITORYS_DIR" ]; then
+        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
+        exit 1
+    fi
+
+    for file in "$REPOSITORYS_DIR"/*; do
+        if [ -f "$file" ]; then
+            console_echo "WORKING ON: $file"
+        
+            while IFS= read -r repo_url || [ -n "$repo_url" ]; do
+                if [[ -n "$repo_url" ]]; then
+                    console_echo "CLONING: $repo_url"
+                    git clone $repo_url
+                
+                fi
+            done < "$file"
+        else
+            console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
+          
+        fi
+    done
+
+    console_echo "INSTALLATION FINISHED!!!"
+}
 
 
 
 # CLONE REPOSITORYS FROM LISTS
-clone_repos_from_folder() {
+old() {
     console_echo "Installing Repositorys from Lists!!!"
     s "0.5"
 
