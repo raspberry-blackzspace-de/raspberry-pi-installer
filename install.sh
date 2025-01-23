@@ -223,6 +223,7 @@ clone_repos_from_folder() {
             while IFS= read -r repo_url || [ -n "$repo_url" ]; do
                 if [[ -n "$repo_url" ]]; then
                     console_echo "CLONING: $repo_url"
+                    cd $GPIO_LIBS_DIR
                     git clone $repo_url
                 
                 fi
@@ -235,46 +236,6 @@ clone_repos_from_folder() {
 
     console_echo "INSTALLATION FINISHED!!!"
 }
-
-
-
-# CLONE REPOSITORYS FROM LISTS
-old() {
-    console_echo "Installing Repositorys from Lists!!!"
-    s "0.5"
-
-    if [ ! -d "$REPOSITORYS_DIR" ]; then
-        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
-        s "0.5"
-        exit 1
-    fi
-    
-    for file_path in "$REPOSITORYS_DIR"/*; do
-        if [[ -f "$file_path" ]]; then
-            console_echo "WORKING ON: $file_path"
-            
-            while IFS= read -r repo_url; do
-                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
-                    continue
-                fi
-
-                console_echo "CLONING REPOSITORY: $repo_url"
-               
-                cd $GPIO_LIBS_DIR
-
-                $gcl "$repo_url"
-
-
-
-
-                
-            done < "$file_path"
-        fi
-    done
-}
-
-
-
 
 
 
