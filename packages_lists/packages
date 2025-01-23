@@ -1,0 +1,11 @@
+make
+cmake
+build-essential*
+sof*prop*c*
+py*3*dev
+py*3*pip
+py*3*venv
+gcc 
+clang 
+libc6-dev
+golang

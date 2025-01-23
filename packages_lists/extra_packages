@@ -1,0 +1,5 @@
+libopencv-dev 
+python3-opencv
+libsdl2-dev 
+libvulkan-dev 
+libegl1-mesa-dev

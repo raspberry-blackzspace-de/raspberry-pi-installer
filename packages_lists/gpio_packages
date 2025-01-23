@@ -1,0 +1,10 @@
+wiringpi
+pigpio
+python3-rpi.gpio
+libgpiod-dev 
+libgpiod-tools
+i2c-tools 
+libi2c-dev
+spi-tools
+minicom
+gpiod

@@ -1,0 +1,288 @@
+#!/bin/bash
+# install.sh
+
+
+reset;
+
+
+
+
+
+
+# ANSI-Farbcodes
+RED="\033[31m"
+YELLOW="\033[33m"
+
+
+# EXPORTING VARIABLES
+
+# APT-GET VARIABLES
+export u="sudo apt-get update"
+export ug="sudo apt-get upgrade -y"
+export i="sudo apt-get install -y "
+export r="sudo apt-get remove -y "
+export rp="sudo apt-get remove -y $pkg --purge"
+export dug="sudo apt-get dist-upgrade -y"
+export ar="sudo apt-get autoremove -y"
+export ac="sudo apt-get autoclean"
+# END APT-GET VARIABLES
+
+# GIT VARIABLES
+export gcl="git clone"
+
+# RASPBERRY PI VARIABLES
+export rpiu="sudo rpi-update"
+export rpieo="sudo rpi-eeprom-update"
+# END RASPBERRY PI VARIABLES
+
+# SHORTCUTZ
+export s="sleep 1"
+
+
+
+
+me=$(whoami) # Current User
+
+
+PACKAGE_DIR="packages_lists"
+REPOSITORYS_DIR="repositorys_lists"
+SCRIPTS_DIR="scripts"
+
+
+STATUS=${STATUS:-"start"}
+# END EXPORTING VARIABLES
+
+
+
+
+
+
+# CHECK FOR ROOT PRIVILEGES
+check() {
+    if [ "$EUID" -ne 0 ]; then
+        console_echo "PLEASE RUN AS SUDO OR ROOT, EXITING!!!"
+        exit 1
+    else
+        console_echo "SCRIPT RUNS AS SUDO OR ROOT, CONITNUE!!!"
+    fi
+}
+
+# ECHO COLORED CONSOLE
+console_echo() {
+    echo -e "\033[31mConsole > \033[33m$1"
+}
+
+# OWN AND GRANT PERMISSIONS
+own_and_grant() {
+    console_echo "Changing Ownership and Granting Permissions!!!"
+    sudo chmod 755 -R ./*
+    sudo chown $me -hR ./*
+}
+
+# SLEEP BETWEEN FUNCTIONS
+s() {
+    local time="$1"
+    $s $time
+}
+
+
+
+
+
+
+# DEFINE WRAPPER FUNCTIONS
+
+# APT-GET UPDATE
+u() {
+    console_echo "Starting Update..."
+    $u
+    console_echo "Update finished."
+}
+# APT-GET UPGRADE -Y
+ug() {
+    console_echo "Starting Upgrade..."
+    $ug
+    console_echo "Update finished."
+}
+# APT-GET DIST-UPGRADE
+dug() {
+    console_echo "Starting Dist-Upgrade..."
+    $dug
+    console_echo "Dist-Upgrade finished."
+}
+# APT-GET INSTALL (wait for user input)
+i() {
+    local paketname="${1:-default-paket}"
+    console_echo "Starting installation of: $paketname"
+    $i $paketname
+    console_echo "Installation finished!"
+}
+# APT-GET REMOVE
+r() {
+    if [ -z "$1" ]; then
+        echo "${RED}ERROR: ${YELLOW} NO PACKAGE SELECTED."
+        echo "${RED}USAGE: ${YELLOW} r <paketname>"
+        return 1
+    fi
+    
+    local pkg="$1"
+    echo "${RED}REMOVING: ${YELLOW} $pkg"
+    $r $pkg
+    echo "${RED}PACKAGE:${YELLOW} $pkg REMOVED!"
+}
+# APT-GET REMOVE --PURGE
+rp() {
+    if [ -z "$1" ]; then
+        echo "${RED}ERROR: ${YELLOW} NO PACKAGE CHOOSED."
+        echo "${RED}USAGE: ${YELLOW} rp <paketname>"
+        return 1
+    fi
+    
+    local pkg="$1"
+    echo "${RED}REMOVING: ${YELLOW} $pkg (incl. config-files)"
+    
+    echo "${RED}PACKAGE: ${YELLOW} $pkg REMOVED COMPLETLY!"
+}
+
+
+
+
+
+
+
+
+
+
+# INSTALLS PACKAGES FROM LISTS
+install_from_packages_list() {
+    console_echo "Installing Packages from Lists!!!"
+    s "1"
+
+    if [ ! -d "$PACKAGE_DIR" ]; then
+        console_echo "THE DIRECTORY: $PACKAGE_DIR DOSENT EXIST."
+        s "1"
+        exit 1
+    fi
+
+    for file in "$PACKAGE_DIR"/*; do
+        if [ -f "$file" ]; then
+            console_echo "WORKING ON: $file"
+            s "1"
+            while IFS= read -r package || [ -n "$package" ]; do
+                if [[ -n "$package" ]]; then
+                    console_echo "INSTALLING: $package"
+                    i "$package"
+                    s "1"
+                fi
+            done < "$file"
+        else
+            console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
+            s "1"
+        fi
+    done
+
+    console_echo "INSTALLATION FINISHED!!!"
+}
+
+
+
+
+
+
+# CLONE REPOSITORYS FROM LISTS
+clone_repos_from_folder() {
+    console_echo "Installing Repositorys from Lists!!!"
+    s "1"
+
+    if [ ! -d "$REPOSITORYS_DIR" ]; then
+        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
+        s "1"
+        exit 1
+    fi
+    
+    for file_path in "$REPOSITORYS_DIR"/*; do
+        if [[ -f "$file_path" ]]; then
+            console_echo "WORKING ON: $file_path"
+            
+            while IFS= read -r repo_url; do
+                # Überspringe leere Zeilen oder Zeilen, die mit # beginnen (Kommentare)
+                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
+                    continue
+                fi
+
+                console_echo "CLONING REPOSITORY: $repo_url"
+                git clone "$repo_url"
+            done < "$file_path"
+        fi
+    done
+}
+
+
+
+
+# AUTO INSTALLER
+auto_install() {
+    console_echo "Starting Auto-Installer!!!"
+    s "1"
+
+    # APT - PROCEDURE
+    $u;
+    s "1"
+    $ug;
+    s "1"
+    $dug;
+    s "1"
+    $ar;
+    s "1"
+    # END APT - PROCEDURE
+
+
+    # INSTALLING PACKAGES, CLONING REPOSITORYS & MORE
+    install_from_packages_list;  # Installing packages
+    clone_repos_from_folder;     # Clone repositories
+
+}
+
+
+
+
+
+
+main_menu() {
+    while true;
+    do
+        
+        echo "=================================================="
+        echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1  ||=="
+        echo "=================================================="
+        echo "==|| 1:(A)uto Install   | 2:(M)anual Install  ||=="
+        echo "=================================================="
+        echo "==||       q|Q = Quit or Ctrl + C/X           ||=="
+        echo "=================================================="
+        
+        read -p "Console > " x
+        
+        case $x in
+            1|A|a) auto_install; continue;;
+            2|M|m) manual_install; continue;;
+            q|Q) console_echo " Exiting!!!"; exit;;
+            *) console_echo "Please enter an option matching the menu!"; continue;;
+        esac
+    done
+    
+}
+
+
+
+initalize() {
+    check;
+    own_and_grant;
+    s "1"
+
+    main_menu;
+
+}
+
+
+
+initalize;
