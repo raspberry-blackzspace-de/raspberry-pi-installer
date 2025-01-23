@@ -206,9 +206,11 @@ install_from_packages_list() {
 
 
 
-clone_repos_from_folderx() {
-    local keywords=("WiringPi-Node" "WiringPi-Python" "WiringPi-Ruby" "WiringPi-PHP" "WiringPi-Perl")
-    
+
+
+
+# CLONE REPOSITORYS FROM LISTS
+clone_repos_from_folder() {
     console_echo "Installing Repositorys from Lists!!!"
     s "0.5"
 
@@ -229,70 +231,15 @@ clone_repos_from_folderx() {
 
                 console_echo "CLONING REPOSITORY: $repo_url"
                
-                
+                cd $GPIO_LIBS_DIR
 
-                if [[ "$repo_url" == *"WiringPi"* ]]; then
-                   cd $WIRINGPI_LIBS_DIR
-                   $gcl "$repo_url"
-                else
-                   cd $GPIO_LIBS_DIR
-                   $gcl "$repo_url"
-                fi
+                $gcl "$repo_url"
 
 
 
 
                 
             done < "$file_path"
-        fi
-    done
-}
-
-
-# CLONE REPOSITORYS FROM LISTS
-clone_repos_from_folder() {
-    local keywords=("WiringPi-Node" "WiringPi-Python" "WiringPi-Ruby" "WiringPi-PHP" "WiringPi-Perl")
-    
-    console_echo "Installing Repositorys from Lists!!!"
-    s "0.5"
-
-    if [ ! -d "$REPOSITORYS_DIR" ]; then
-        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
-        s "0.5"
-        exit 1
-    fi
-    
-    for file_path in "$REPOSITORYS_DIR"/*; do
-        if [[ -f "$file_path" ]]; then
-            console_echo "WORKING ON: $file_path"
-            
-            while IFS= read -r repo_url; do
-        # Überprüfen, ob die Zeile leer ist oder mit einem # beginnt (Kommentarzeilen überspringen)
-            [[ -z "$repo_url" || "$repo_url" == \#* ]] && continue
-
-        # Prüfen, ob die URL eines der Schlüsselwörter enthält
-            local is_wiringpi=false
-            for keyword in "${keywords[@]}"; do
-                if [[ "$repo_url" == *"$keyword"* ]]; then
-                    is_wiringpi=true
-                    break
-                fi
-            done
-
-        # Entsprechend dem Ergebnis in das richtige Verzeichnis wechseln und klonen
-            if [[ "$is_wiringpi" == true ]]; then
-                echo "Cloning into WiringPi libs directory: $repo_url"
-                cd "$WIRINGPI_LIBS_DIR" || exit
-            else
-                echo "Cloning into GPIO libs directory: $repo_url"
-                cd "$GPIO_LIBS_DIR" || exit
-        fi
-
-        # Repository klonen
-        git clone "$repo_url"
-
-    done < "$file_path"
-
         fi
     done
 }
@@ -350,8 +297,8 @@ main_menu() {
         echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1     ||=="
         echo "====================================================="
         echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
+        echo "== (G)it clone           |                         =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
-        echo "== 5:(G)it clone         |                         =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
         echo "====================================================="
@@ -361,7 +308,6 @@ main_menu() {
         case $x in
             1|A|a) auto_install; continue;;
             2|M|m) manual_install; continue;;
-            5|G|g) clone_repos_from_folder; continue;;
             q|Q) console_echo " Exiting!!!"; exit;;
             *) console_echo "Please enter an option matching the menu!"; continue;;
         esac
