@@ -216,21 +216,21 @@ clone_repos_from_folder() {
         exit 1
     fi
 
-    for file in "$REPOSITORYS_DIR"/*; do
-        if [ -f "$file" ]; then
-            console_echo "WORKING ON: $file"
+    for file_path in "$REPOSITORYS_DIR"/*; do
+        if [ -f "$file_path" ]; then
+            console_echo "WORKING ON: $file_path"
         
-            while IFS= read -r repo_url || [ -n "$repo_url" ]; do
-                if [[ -n "$repo_url" ]]; then
-                    console_echo "CLONING: $repo_url"
+            while IFS= read -r repo_url; do
+                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
+                    console_echo "CLONING REPOSITORY: $repo_url"
+
                     cd $GPIO_LIBS_DIR
-                    git clone $repo_url
-                
+                    git clone $repo_url;
+                  
                 fi
+
+
             done < "$file"
-        else
-            console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
-          
         fi
     done
 
@@ -288,7 +288,7 @@ main_menu() {
         echo "====================================================="
         echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
-        echo "== 5:(G)it clone        |                         =="
+        echo "== 5: (G)it clone        |                         =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
         echo "====================================================="
