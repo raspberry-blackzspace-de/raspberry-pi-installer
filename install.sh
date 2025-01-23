@@ -227,6 +227,7 @@ clone_repos_from_folder() {
                 fi
 
                 echo "Klone Repository: $repo_url"
+                cd $GPIO_LIBS_DIR
                 git clone "$repo_url"
             done < "$file_path"
         fi
