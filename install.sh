@@ -293,8 +293,6 @@ clone_repos_from_folder() {
 
     done < "$file_path"
 
-    # Sicherstellen, dass nach der Ausführung in das ursprüngliche Verzeichnis gewechselt wird
-    cd - > /dev/null || exit
         fi
     done
 }
