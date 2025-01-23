@@ -203,22 +203,20 @@ install_from_packages_list() {
 
     console_echo "INSTALLATION FINISHED!!!"
 }
-
 clone_repos_from_folder() {
-    
-    
+    local folder_path="$REPOSITORYS_DIR"  # Unterordner mit Repository-Dateien
+
     # Überprüfen, ob der Ordner existiert
-    if [[ ! -d "$REPOSITORYS_DIR" ]]; then
-        echo "Der Ordner '$REPOSITORYS_DIR' existiert nicht."
+    if [[ ! -d "$folder_path" ]]; then
+        echo "Der Ordner '$folder_path' existiert nicht."
         return 1
     fi
 
     # Iteriere über alle Dateien im Ordner
-    for file_path in "$REPOSITORYS_DIR"/*; do
-        # Prüfen, ob es sich um eine Datei handelt
+    for file_path in "$folder_path"/*; do
+        # Prüfen, ob es sich um eine reguläre Datei handelt
         if [[ -f "$file_path" ]]; then
             echo "Bearbeite Datei: $file_path"
-            cd $GPIO_LIBS_DIR
             
             # Datei Zeile für Zeile lesen
             while IFS= read -r repo_url; do
@@ -226,15 +224,13 @@ clone_repos_from_folder() {
                 if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
                     continue
                 fi
-
+                cd $GPIO_LIBS_DIR
                 echo "Klone Repository: $repo_url"
-                
                 git clone "$repo_url"
             done < "$file_path"
         fi
     done
 }
-
 
 
 
