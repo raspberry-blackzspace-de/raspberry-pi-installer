@@ -220,16 +220,16 @@ clone_repos_from_folder() {
         if [ -f "$file_path" ]; then
             console_echo "WORKING ON: $file_path"
         
-            while IFS= read -r repo_url; do
-                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
-                    console_echo "CLONING REPOSITORY: $repo_url"
+             while IFS= read -r repo_url; do
+        # Überprüfen, ob die Zeile leer ist oder mit einem # beginnt (Kommentarzeilen überspringen)
+        [[ -z "$repo_url" || "$repo_url" == \#* ]] && continue
 
-                    cd $GPIO_LIBS_DIR
-                    git clone $repo_url;
-                  
-                fi
-
-
+        # Clonen der Git-Repository
+        console_echo "CLONING: $repo_url"
+        git clone $repo_url
+        
+        # Wechseln in das Repository
+                
             done < "$file"
         fi
     done
