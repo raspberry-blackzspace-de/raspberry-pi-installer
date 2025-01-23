@@ -288,7 +288,7 @@ main_menu() {
         echo "====================================================="
         echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
-        echo "== 5: (G)it clone        |                         =="
+        echo "== 5:(G)it clone        |                         =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
         echo "====================================================="
