@@ -352,8 +352,8 @@ main_menu() {
         echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1     ||=="
         echo "====================================================="
         echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
-        echo "== (G)it clone           |                         =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
+        echo "== 5:(G)it clone         |                         =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
         echo "====================================================="
@@ -363,6 +363,7 @@ main_menu() {
         case $x in
             1|A|a) auto_install; continue;;
             2|M|m) manual_install; continue;;
+            5|G|g) clone_repos_from_folder; continue;;
             q|Q) console_echo " Exiting!!!"; exit;;
             *) console_echo "Please enter an option matching the menu!"; continue;;
         esac
