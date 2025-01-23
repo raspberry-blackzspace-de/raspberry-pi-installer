@@ -20,6 +20,7 @@ YELLOW="\033[33m"
 export u="sudo apt-get update"
 export ug="sudo apt-get upgrade -y"
 export i="sudo apt-get install -y "
+export ia="sudo apt-get install "
 export r="sudo apt-get remove -y "
 export rp="sudo apt-get remove -y $pkg --purge"
 export dug="sudo apt-get dist-upgrade -y"
@@ -98,18 +99,21 @@ u() {
     $u
     console_echo "Update finished."
 }
+
 # APT-GET UPGRADE -Y
 ug() {
     console_echo "Starting Upgrade..."
     $ug
     console_echo "Update finished."
 }
+
 # APT-GET DIST-UPGRADE
 dug() {
     console_echo "Starting Dist-Upgrade..."
     $dug
     console_echo "Dist-Upgrade finished."
 }
+
 # APT-GET INSTALL (wait for user input)
 i() {
     local paketname="${1:-default-paket}"
@@ -117,6 +121,7 @@ i() {
     $i $paketname
     console_echo "Installation finished!"
 }
+
 # APT-GET REMOVE
 r() {
     if [ -z "$1" ]; then
@@ -130,6 +135,7 @@ r() {
     $r $pkg
     echo "${RED}PACKAGE:${YELLOW} $pkg REMOVED!"
 }
+
 # APT-GET REMOVE --PURGE
 rp() {
     if [ -z "$1" ]; then
@@ -153,10 +159,11 @@ rp() {
 
 
 
+
 # INSTALLS PACKAGES FROM LISTS
 install_from_packages_list() {
     console_echo "Installing Packages from Lists!!!"
-    s "1"
+    s "0.5"
 
     if [ ! -d "$PACKAGE_DIR" ]; then
         console_echo "THE DIRECTORY: $PACKAGE_DIR DOSENT EXIST."
@@ -191,11 +198,11 @@ install_from_packages_list() {
 # CLONE REPOSITORYS FROM LISTS
 clone_repos_from_folder() {
     console_echo "Installing Repositorys from Lists!!!"
-    s "1"
+    s "0.5"
 
     if [ ! -d "$REPOSITORYS_DIR" ]; then
         console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
-        s "1"
+        s "0.5"
         exit 1
     fi
     
@@ -204,7 +211,6 @@ clone_repos_from_folder() {
             console_echo "WORKING ON: $file_path"
             
             while IFS= read -r repo_url; do
-                # Überspringe leere Zeilen oder Zeilen, die mit # beginnen (Kommentare)
                 if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
                     continue
                 fi
@@ -219,20 +225,24 @@ clone_repos_from_folder() {
 
 
 
+
+
+
+
 # AUTO INSTALLER
 auto_install() {
     console_echo "Starting Auto-Installer!!!"
-    s "1"
+    s "0.5"
 
     # APT - PROCEDURE
     $u;
-    s "1"
+    s "0.5"
     $ug;
-    s "1"
+    s "0.5"
     $dug;
-    s "1"
+    s "0.5"
     $ar;
-    s "1"
+    s "0.5"
     # END APT - PROCEDURE
 
 
@@ -244,6 +254,75 @@ auto_install() {
 
 
 
+manual_install() {
+    console_echo "Starting Manual Installer!!!"
+    s "0.5"
+
+    # APT - PROCEDURE
+    $u;
+    s "0.5"
+    $ug;
+    s "0.5"
+    $dug;
+    s "0.5"
+
+    # INSTALLING PACKAGES, CLONING REPOSITORYS & MORE
+    if [ ! -d "$PACKAGE_DIR" ]; then
+        console_echo "THE DIRECTORY: $PACKAGE_DIR DOSENT EXIST."
+        exit 1
+    fi
+
+    for file in "$PACKAGE_DIR"/*; do
+        if [ -f "$file" ]; then
+            console_echo "WORKING ON: $file"
+        
+            while IFS= read -r package || [ -n "$package" ]; do
+                if [[ -n "$package" ]]; then
+                    console_echo "INSTALLING: $package"
+                    ia "$package"
+                
+                fi
+            done < "$file"
+        else
+            console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
+          
+        fi
+    done
+
+    console_echo "INSTALLATION FINISHED!!!"
+
+
+    console_echo "Installing Repositorys from Lists!!!"
+    s "0.5"
+
+    if [ ! -d "$REPOSITORYS_DIR" ]; then
+        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
+        s "0.5"
+        exit 1
+    fi
+    
+    for file_path in "$REPOSITORYS_DIR"/*; do
+        if [[ -f "$file_path" ]]; then
+            console_echo "WORKING ON: $file_path"
+            
+            while IFS= read -r repo_url; do
+                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
+                    continue
+                fi
+
+                console_echo "DO YOU WANT TO CLONE REPOSITORY: $repo_url ?"
+                read -p " (y/n): " yn
+                if [ "$yn"!= "y" ]; then
+                    git clone "$repo_url"
+                elif [ "$yn"!= "n" ]; then
+                    continue
+                fi
+
+                
+            done < "$file_path"
+        fi
+    done
+}
 
 
 
@@ -251,13 +330,14 @@ main_menu() {
     while true;
     do
         
-        echo "=================================================="
-        echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1  ||=="
-        echo "=================================================="
-        echo "==|| 1:(A)uto Install   | 2:(M)anual Install  ||=="
-        echo "=================================================="
-        echo "==||       q|Q = Quit or Ctrl + C/X           ||=="
-        echo "=================================================="
+        echo "====================================================="
+        echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1     ||=="
+        echo "====================================================="
+        echo "== 1:(A)uto Install      | 2:(M)anual Install      =="
+        echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
+        echo "====================================================="
+        echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
+        echo "====================================================="
         
         read -p "Console > " x
         

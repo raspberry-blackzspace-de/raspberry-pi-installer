@@ -1,0 +1,8 @@
+setuptools
+disutils
+wheel
+polib
+gpiozero
+rpi.gpio
+pillow
+luma.oled
