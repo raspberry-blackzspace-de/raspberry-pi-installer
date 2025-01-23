@@ -44,10 +44,16 @@ export s="sleep "
 
 me=$(whoami) # Current User
 
-
+# APPLICATION FOLDERS
 PACKAGE_DIR="packages_lists"
 REPOSITORYS_DIR="repositorys_lists"
 SCRIPTS_DIR="scripts"
+
+
+# FOLDERS TO CREATE
+GPIO_LIBS_DIR="/usr/share/libarys/gpio"
+WIRINGPI_LIBS_DIR="/usr/share/libarys/gpio/wiringpi"
+
 
 
 STATUS=${STATUS:-"start"}
@@ -73,12 +79,7 @@ console_echo() {
     echo -e "\033[31mConsole > \033[33m$1"
 }
 
-# OWN AND GRANT PERMISSIONS
-own_and_grant() {
-    console_echo "Changing Ownership and Granting Permissions!!!"
-    sudo chmod 755 -R ./*
-    sudo chown $me -hR ./*
-}
+
 
 # SLEEP BETWEEN FUNCTIONS
 s() {
@@ -88,7 +89,20 @@ s() {
 
 
 
+# OWN AND GRANT PERMISSIONS
+own_and_grant() {
+    console_echo "Changing Ownership and Granting Permissions!!!"
+    sudo chmod 755 -R ./*
+    sudo chown $me -hR ./*
+}
 
+
+# CREATE FOLDERS
+create_folders() {
+    console_echo "Creating Folders..."
+    sudo mkdir -p $GPIO_LIBS_DIR
+    sudo mkdir -p $WIRINGPI_LIBS_DIR
+}
 
 
 # DEFINE WRAPPER FUNCTIONS
@@ -197,6 +211,8 @@ install_from_packages_list() {
 
 # CLONE REPOSITORYS FROM LISTS
 clone_repos_from_folder() {
+    keywords=("-Node" "-Python" "-Ruby" "-PHP" "-Perl")
+
     console_echo "Installing Repositorys from Lists!!!"
     s "0.5"
 
@@ -216,7 +232,21 @@ clone_repos_from_folder() {
                 fi
 
                 console_echo "CLONING REPOSITORY: $repo_url"
-                git clone "$repo_url"
+               
+                
+
+                if [[ "$repo_url" == *"WiringPi"* ]]; then
+                   cd $WIRINGPI_LIBS_DIR
+                   gcl "$repo_url"
+                else
+                   cd $GPIO_LIBS_DIR
+                   gcl "$repo_url"
+                fi
+
+
+
+
+                
             done < "$file_path"
         fi
     done
@@ -355,6 +385,7 @@ main_menu() {
 
 initalize() {
     check;
+    create_folders;
     own_and_grant;
     s "1"
 
