@@ -36,7 +36,7 @@ export rpieo="sudo rpi-eeprom-update"
 # END RASPBERRY PI VARIABLES
 
 # SHORTCUTZ
-export s="sleep 1"
+export s="sleep "
 
 
 
@@ -160,24 +160,23 @@ install_from_packages_list() {
 
     if [ ! -d "$PACKAGE_DIR" ]; then
         console_echo "THE DIRECTORY: $PACKAGE_DIR DOSENT EXIST."
-        s "1"
         exit 1
     fi
 
     for file in "$PACKAGE_DIR"/*; do
         if [ -f "$file" ]; then
             console_echo "WORKING ON: $file"
-            s "1"
+        
             while IFS= read -r package || [ -n "$package" ]; do
                 if [[ -n "$package" ]]; then
                     console_echo "INSTALLING: $package"
                     i "$package"
-                    s "1"
+                
                 fi
             done < "$file"
         else
             console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
-            s "1"
+          
         fi
     done
 
