@@ -282,76 +282,17 @@ auto_install() {
 
 }
 
-
-
-manual_install() {
-    console_echo "Starting Manual Installer!!!"
+install_minecraft_server() {
+    console_echo "Installing Minecraft Server!!!"
     s "0.5"
 
-    # APT - PROCEDURE
-    $u;
-    s "0.5"
-    $ug;
-    s "0.5"
-    $dug;
-    s "0.5"
-
-    # INSTALLING PACKAGES, CLONING REPOSITORYS & MORE
-    if [ ! -d "$PACKAGE_DIR" ]; then
-        console_echo "THE DIRECTORY: $PACKAGE_DIR DOSENT EXIST."
+    if [! -d "$SCRIPTS_DIR" ]; then
+        console_echo "THE DIRECTORY: $SCRIPTS_DIR DOSENT EXIST."
         exit 1
     fi
 
-    for file in "$PACKAGE_DIR"/*; do
-        if [ -f "$file" ]; then
-            console_echo "WORKING ON: $file"
-        
-            while IFS= read -r package || [ -n "$package" ]; do
-                if [[ -n "$package" ]]; then
-                    console_echo "INSTALLING: $package"
-                    ia "$package"
-                
-                fi
-            done < "$file"
-        else
-            console_echo " $file ISNT A REGULAR FILE, SKIPPING!"
-          
-        fi
-    done
-
-    console_echo "INSTALLATION FINISHED!!!"
-
-
-    console_echo "Installing Repositorys from Lists!!!"
-    s "0.5"
-
-    if [ ! -d "$REPOSITORYS_DIR" ]; then
-        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
-        s "0.5"
-        exit 1
-    fi
-    
-    for file_path in "$REPOSITORYS_DIR"/*; do
-        if [[ -f "$file_path" ]]; then
-            console_echo "WORKING ON: $file_path"
-            
-            while IFS= read -r repo_url; do
-                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
-                    continue
-                fi
-
-                console_echo "DO YOU WANT TO CLONE REPOSITORY: $repo_url ?"
-                read -p " (y/n): " yn
-                if [ "$yn"!= "y" ]; then
-                    git clone "$repo_url"
-                elif [ "$yn"!= "n" ]; then
-                    continue
-                fi
-
-                
-            done < "$file_path"
-        fi
-    done
+    cd $SCRIPTS_DIR
+    ./install_minecraft_server.sh
 }
 
 
@@ -363,7 +304,7 @@ main_menu() {
         echo "====================================================="
         echo "==|| RASPBERRY PI | DEV-BOARD INSTALLER v0.1     ||=="
         echo "====================================================="
-        echo "== 1:(A)uto Install      | 2:(M)anual Install      =="
+        echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
