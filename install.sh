@@ -204,39 +204,34 @@ install_from_packages_list() {
     console_echo "INSTALLATION FINISHED!!!"
 }
 
-
-
-# INSTALLS PACKAGES FROM LISTS
 clone_repos_from_folder() {
-    console_echo "Installing Packages from Lists!!!"
-    s "0.5"
-
-    if [ ! -d "$REPOSITORYS_DIR" ]; then
-        console_echo "THE DIRECTORY: $REPOSITORYS_DIR DOSENT EXIST."
-        exit 1
+    
+    
+    # Überprüfen, ob der Ordner existiert
+    if [[ ! -d "$PACKAGE_DIR" ]]; then
+        echo "Der Ordner '$PACKAGE_DIR' existiert nicht."
+        return 1
     fi
 
-    for file_path in "$REPOSITORYS_DIR"/*; do
-        if [ -f "$file_path" ]; then
-            console_echo "WORKING ON: $file_path"
-        
-             while IFS= read -r repo_url; do
-        # Überprüfen, ob die Zeile leer ist oder mit einem # beginnt (Kommentarzeilen überspringen)
-        [[ -z "$repo_url" || "$repo_url" == \#* ]] && continue
+    # Iteriere über alle Dateien im Ordner
+    for file_path in "$folder_path"/*; do
+        # Prüfen, ob es sich um eine Datei handelt
+        if [[ -f "$file_path" ]]; then
+            echo "Bearbeite Datei: $file_path"
+            
+            # Datei Zeile für Zeile lesen
+            while IFS= read -r repo_url; do
+                # Überspringe leere Zeilen oder Zeilen, die mit # beginnen (Kommentare)
+                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
+                    continue
+                fi
 
-        # Clonen der Git-Repository
-        console_echo "CLONING: $repo_url"
-        git clone $repo_url
-        
-        # Wechseln in das Repository
-                
-            done < "$file"
+                echo "Klone Repository: $repo_url"
+                git clone "$repo_url"
+            done < "$file_path"
         fi
     done
-
-    console_echo "INSTALLATION FINISHED!!!"
 }
-
 
 
 
