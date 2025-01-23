@@ -206,7 +206,7 @@ install_from_packages_list() {
 
 clone_repos_from_folder() {
     
-    
+    cd $GPIO_LIBS_DIR
     # Überprüfen, ob der Ordner existiert
     if [[ ! -d "$REPOSITORYS_DIR" ]]; then
         echo "Der Ordner '$REPOSITORYS_DIR' existiert nicht."
@@ -227,7 +227,7 @@ clone_repos_from_folder() {
                 fi
 
                 echo "Klone Repository: $repo_url"
-                cd $GPIO_LIBS_DIR
+                
                 git clone "$repo_url"
             done < "$file_path"
         fi
