@@ -208,13 +208,13 @@ clone_repos_from_folder() {
     
     
     # Überprüfen, ob der Ordner existiert
-    if [[ ! -d "$PACKAGE_DIR" ]]; then
-        echo "Der Ordner '$PACKAGE_DIR' existiert nicht."
+    if [[ ! -d "$REPOSITORYS_DIR" ]]; then
+        echo "Der Ordner '$REPOSITORYS_DIR' existiert nicht."
         return 1
     fi
 
     # Iteriere über alle Dateien im Ordner
-    for file_path in "$folder_path"/*; do
+    for file_path in "$REPOSITORYS_DIR"/*; do
         # Prüfen, ob es sich um eine Datei handelt
         if [[ -f "$file_path" ]]; then
             echo "Bearbeite Datei: $file_path"
