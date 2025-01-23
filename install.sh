@@ -237,10 +237,10 @@ clone_repos_from_folder() {
 
                 if [[ "$repo_url" == *"WiringPi"* ]]; then
                    cd $WIRINGPI_LIBS_DIR
-                   gcl "$repo_url"
+                   $gcl "$repo_url"
                 else
                    cd $GPIO_LIBS_DIR
-                   gcl "$repo_url"
+                   $gcl "$repo_url"
                 fi
 
 
