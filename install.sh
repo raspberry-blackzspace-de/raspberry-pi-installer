@@ -46,13 +46,15 @@ me=$(whoami) # Current User
 
 # APPLICATION FOLDERS
 PACKAGE_DIR="packages_lists"
-REPOSITORYS_DIR="repositorys_lists"
+REPOSITORYS_DIR="repositorys_lists"  # Unterordner mit Repository-Listen
 SCRIPTS_DIR="scripts"
 
 
 # FOLDERS TO CREATE
+LIBARYS_DIR="/usr/share/libarys"
 GPIO_LIBS_DIR="/usr/share/libarys/gpio"
 WIRINGPI_LIBS_DIR="/usr/share/libarys/gpio/wiringpi"
+
 
 
 
@@ -100,6 +102,7 @@ own_and_grant() {
 # CREATE FOLDERS
 create_folders() {
     console_echo "Creating Folders..."
+    sudo mkdir -p $LIBARYS_DIR
     sudo mkdir -p $GPIO_LIBS_DIR
     sudo mkdir -p $WIRINGPI_LIBS_DIR
 }
@@ -172,8 +175,6 @@ rp() {
 
 
 
-
-
 # INSTALLS PACKAGES FROM LISTS
 install_from_packages_list() {
     console_echo "Installing Packages from Lists!!!"
@@ -203,41 +204,36 @@ install_from_packages_list() {
 
     console_echo "INSTALLATION FINISHED!!!"
 }
+
+
+# CLONING REPOSITORY FROM FOLDER
 clone_repos_from_folder() {
-    REPOSITORYS_DIR="repositorys_lists"  # Unterordner mit Repository-Listen
-TARGET_DIR="/usr/share/libarys"
-
     if [[ ! -d "$REPOSITORYS_DIR" ]]; then
-    echo "Der Ordner '$REPOSITORYS_DIR' existiert nicht."
-    exit 1
-fi
-for file_path in "$REPOSITORYS_DIR"/*; do
-    # Prüfen, ob es sich um eine reguläre Datei handelt
-    if [[ -f "$file_path" ]]; then
-        echo "Bearbeite Datei: $file_path"
-        
-        # Datei Zeile für Zeile lesen
-        while IFS= read -r repo_url; do
-            # Überspringe leere Zeilen oder Zeilen, die mit # beginnen (Kommentare)
-            if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
-                continue
-            fi
-
-            # Name des Repositories extrahieren
-            repo_name=$(basename -s .git "$repo_url")
-
-            # Prüfen, ob das Repository bereits im Zielordner existiert
-            if [[ -d "$TARGET_DIR/$repo_name" ]]; then
-                echo "Das Repository '$repo_name' existiert bereits. Überspringe..."
-                continue
-            fi
-
-            # Klonen des Repositories
-            echo "Klone Repository: $repo_url nach $TARGET_DIR/$repo_name"
-            git clone "$repo_url" "$TARGET_DIR/$repo_name"
-        done < "$file_path"
+        console_echo "FOLDER: '$REPOSITORYS_DIR' DOSENT EXIST."
+        sudo mkdir -p "$REPOSITORYS_DIR"
+        continue
     fi
-done
+
+    for file_path in "$REPOSITORYS_DIR"/*; do
+        if [[ -f "$file_path" ]]; then
+            console_echo "WORKING ON FILE: $file_path"
+            while IFS= read -r repo_url; do
+                if [[ -z "$repo_url" || "$repo_url" =~ ^# ]]; then
+                    continue
+                fi
+
+                repo_name=$(basename -s .git "$repo_url")
+
+                if [[ -d "$GPIO_LIBS_DIR/$repo_name" ]]; then
+                    console_echo "Repository '$repo_name' EXISTS. Skipping..."
+                    continue
+                fi
+
+                console_echo "Cloning Repository: $repo_url TO $GPIO_LIBS_DIR/$repo_name"
+                git clone "$repo_url" "$GPIO_LIBS_DIR/$repo_name"
+            done < "$file_path"
+        fi
+    done
 }
 
 
@@ -265,6 +261,8 @@ auto_install() {
 
 }
 
+
+# INSTALL MINECRAFT SERVER
 install_minecraft_server() {
     console_echo "Installing Minecraft Server!!!"
     s "0.5"
@@ -289,7 +287,7 @@ main_menu() {
         echo "====================================================="
         echo "== 1:(A)uto Install      | 2:(M)inecraft Server    =="
         echo "== 3:(R)PI-UPDATE        | 4:(U)pdate-rpi-eeprom   =="
-        echo "== 5: (G)it clone        |                         =="
+        echo "== 5:(G)it clone        |                         =="
         echo "====================================================="
         echo "==||       q|Q = Quit or Ctrl + C/X              ||=="
         echo "====================================================="
@@ -298,7 +296,9 @@ main_menu() {
         
         case $x in
             1|A|a) auto_install; continue;;
-            2|M|m) manual_install; continue;;
+            2|M|m) install_minecraft_server; continue;;
+            3|R|r) $rpiu; continue;;
+            4|U|u) $rpir; continue;;
             5|G|g) clone_repos_from_folder; continue;;
             q|Q) console_echo " Exiting!!!"; exit;;
             *) console_echo "Please enter an option matching the menu!"; continue;;
